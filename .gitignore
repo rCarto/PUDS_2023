@@ -40,7 +40,7 @@ vignettes/*.pdf
 .Renviron
 
 # caches
-figs/
+/figs/
 cache/
 
 # translation temp files
