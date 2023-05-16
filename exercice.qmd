@@ -1,0 +1,72 @@
+---
+echo: false
+eval: false
+---
+
+# Exercice
+
+Nous voulons connaitre le prix médian au mètre carré pour les 
+appartements vendus entre 2016 et 2021 dans un 
+voisinage de 500 mètres autour de la mairie de Montreuil.
+
+Cette exercice utilise les données du projet RStudio **geodata**.  
+[Télécharger le projet](geodata.zip){.btn .btn-primary .btn-sm role="button"}
+
+
+Pour cela nous disposons d'un jeu de données, le fichier **dvf.gpkg** contenu dans le dossier **data** du projet
+**geodata**. Il s'agit d'un geopackage qui contient 2 couches d'information :
+
+* **com**, les limites communales de Vincennes (94) et de Montreuil (93) (BD CARTO®, IGN, 2021),
+* **dvf**, un extrait des appartements vendus entre 2016 et 2021 dans
+  les communes de Vincennes et de Montreuil (Demandes de valeurs
+  foncières géolocalisées, Etalab, 2021).
+
+
+
+
+1. Exploration des données
+
+    * Importez les couches **com** et **dvf** du fichier **dvf.gpkg**  
+    Il faut utiliser la fonction `st_read()` du package `sf`.
+    
+    * Affichez les 2 couches importées.
+    
+    * Quel est le prix médian de l'ensemble des transactions ?
+
+2. Géocoder la mairie de Montreuil
+
+    * Voici l'adresse de la mairie de Montreuil : 1 Place Jean Jaurès, 93100 Montreuil.   
+    Il faut d'abord retrouver les coordonnées de la mairie à partir de son adresse. 
+    On peut utiliser le package `tidygeocoder` pour le faire. 
+    
+    * Créez un objet `sf` POINT à partir des coordonnées de la Mairie.  
+    Il faut utiliser la fonction `st_as_sf()`.
+    
+    
+    * Transformez le système de coordonnées du point dans la même projection que **com** et **dvf**.  
+    Il faut utiliser la fonction `st_transform()`.
+
+3. Créer un buffer de 500 m autour de la mairie
+
+    Ici on doit utiliser la fonction `st_buffer()`.
+
+
+4. Extraire les appartements à l'intérieur du buffer et calculer le prix médian
+
+    Ici on peut utiliser la fonction `st_intersection()`.
+
+
+5. Exercice supplémentaire
+   
+    Nous voulons connaître le prix médian des transactions dans une grille régulière. 
+
+    Créer un grille régulière (carreaux d'une surface de 5 hectares) sur l'emprise des communes.   
+    Calculer le prix médian des transactions par carreau.   
+    Représenter ce prix médian sur une carte et ne représenter que les carreaux contenant au moins 10 transactions. 
+
+
+
+:::{.callout-note}
+Vous pouvez utiliser le fichier **exo_geomatique.R** pour vous guider dans cette exercice.   
+Vous trouverez la correction de cette exercice dans le fichier **exo_geomatique_correction.R**
+:::

@@ -1,0 +1,87 @@
+project:
+  type: book
+  output-dir: docs
+  resources: 
+    - "geodata.zip"
+  
+book:
+  title: "Cartographie avec R"
+  description: "Créer des cartes thématiques avec R."
+  author:
+    - name: Timothée Giraud
+      orcid: 0000-0001-5679-6536
+      email: timothee.giraud@cnrs.fr
+      url: https://rcarto.github.io
+      affiliations:
+        - id: 1
+          name: RIATE (CNRS)
+          url: https://riate.cnrs.fr
+
+  date: 23 05 2023
+  date-format: "D MMM YYYY"
+  search: false
+  # repo-url: https://github.com/rcarto/ined2022/
+  sharing: []
+  cover-image: img/globe-africa-solid.svg
+  page-footer: 
+    right: "<img src='img/logos-footer.png' width=290px />"
+    left: "[![CreativeCommonsLicense](img/by-nc-sa.png)](https://creativecommons.org/licenses/by-nc-sa/4.0/)"
+  favicon: img/globe-africa-solid.svg
+  # twitter-card: 
+  #   image: img/globe-africa-solid.png
+  #   card-style: summary_large_image
+  #   creator: "rgeomatic"
+  # site-url: https://rcarto.github.io/ined2022/
+  open-graph: true
+  
+  
+  chapters:
+    - index.qmd
+    - part: "**I. Cartographie avec R**"
+      chapters: 
+        - manip_donnees_vectorielles.qmd
+        - mapsf.qmd
+        - semio.qmd
+        - type_de_carte.qmd
+        - mise_en_page.qmd
+    - part: "**II. Géomatique avec R**"
+      chapters: 
+        - introduction.qmd
+        - format.qmd
+        - import.qmd
+        - afichage.qmd
+        - coords.qmd
+        - geocodage.qmd
+        - sel.qmd
+        - operation.qmd
+        - mesures.qmd
+        - exercice.qmd
+    - references.qmd  
+  # appendices: 
+  #   - 09_acquisition_donnees.qmd
+  
+knitr:
+  opts_chunk: 
+    collapse: false
+    comment: "#>" 
+    fig.height: 4 
+    fig.width: 4.8
+    cache: true
+    crop: true
+    fig.path: "figs/"
+    cache.path: "cache/"
+
+
+
+bibliography: references.bib
+
+lang: fr
+
+csl: "universite-de-montreal-apa.csl"
+
+
+format:
+  html:
+    callout-appearance: simple
+    callout-icon: false
+    theme: cosmo

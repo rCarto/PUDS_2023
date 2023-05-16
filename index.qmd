@@ -1,0 +1,12 @@
+
+# *Préambule* {.unnumbered}
+
+Ce manuel est destiné aux utilisateurs de R souhaitant mettre en place des traitements de données spatiales et créer des cartes ainsi qu'aux géomaticiens et cartographes souhaitant utiliser R pour réaliser les tâches qu'ils réalisent habituellement avec un SIG ou un logiciel de cartographie.
+
+La première partie est dédiée à la création de cartes thématiques conformes aux règles de la sémiologie graphique et de la cartographie avec R.   
+La deuxième partie aborde les principales étapes du traitement de l'information géographiques et la manipulations de données spatiales. 
+
+
+:::{.callout-note}
+Ce document est dérivé de deux supports de cours plus complets : [Cartographie avec R](https://rcarto.github.io/cartographie_avec_r/) [@Giraud_Cartographie_avec_R_2023] et [Géomatique avec R ](https://rcarto.github.io/geomatique_avec_r/) [@Giraud_Geomatique_avec_R_2023]. 
+:::

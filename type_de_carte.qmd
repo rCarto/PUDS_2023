@@ -1,0 +1,266 @@
+---
+knitr:
+  opts_chunk: 
+    collapse: false
+    comment: "#>" 
+    fig.height: 8 
+    fig.width: 8
+    cache: true
+---
+
+
+# Les types de cartes  
+
+La fonction `mf_map()` est la fonction centrale du package `mapsf`. Elle permet de réaliser la plupart des représentations usuelles en cartographie.
+Ces arguments principaux sont :
+
+- `x`, un objet sf ;
+- `var`, le nom de la variable à représenter ;
+- `type`, le type de représentation.
+
+## Les données d'exemple
+
+Les lignes suivantes importent les couches d'information spatiales situées dans le fichier [geopackage](https://www.geopackage.org/) **lot.gpkg**.
+
+```{r}
+library(sf)
+# import des communes du Lot
+com <- st_read("data/lot.gpkg", layer = "communes", quiet = TRUE)
+# import des départements français
+dep <- st_read("data/lot.gpkg", layer = "departements", quiet = TRUE)
+# import des restaurants
+resto <- st_read("data/lot.gpkg", layer = "restaurants", quiet = TRUE)
+# import des routes autour de la commune de Gramat
+route <- st_read("data/lot.gpkg", layer = "routes", quiet = TRUE)
+```
+
+
+## Afficher un fond de carte
+
+Utilisée sans précision de type, la fonction `mf_map()` affiche simplement le fond de carte.
+
+```{r mf_base}
+library(mapsf)
+# Communes
+mf_map(x = com, border = "white")
+mf_map(x = dep, lwd = 2, col = NA, add = TRUE)
+mf_map(x = route, lwd = .7, col = "ivory4", add = TRUE)
+mf_map(x = resto, pch = 20, cex = .7, col = "darkred", add = TRUE)
+```
+
+
+## Carte de symboles proportionnels
+
+Les cartes de symboles proportionnels sont utilisées pour représenter les variables de stocks (variables quantitatives absolues, la somme et la moyenne ont un sens).
+La fonction `mf_map(..., type = "prop")` propose cette représentation.
+
+```{r proportional_symbols}
+# Communes
+mf_map(x = com)
+# Symboles proportionnels
+mf_map(
+  x = com, 
+  var = "POPULATION",
+  type = "prop",
+  leg_title = "Population totale\n(2015)"
+)
+# Titre
+mf_title("Distribution de la population dans le Lot")
+```
+
+## Carte choroplèthe
+
+Les cartes choroplèthes sont utilisées pour représenter les variables de ratios (variables quantitatives relatives, la moyenne a un sens, la somme n'a pas de sens).
+
+La fonction `mf_map(..., type = "choro")` permet de créer des cartes choroplètes. Les arguments `nbreaks` et `breaks` servent à paramétrer les discrétisations.
+
+```{r choro}
+# Densité de population (hab./km2) en utilisant la fonction sf::st_area()
+com$DENS <- 1e6 * com$POP / as.numeric(st_area(com))
+mf_map(
+  x = com,
+  var = "DENS",
+  type = "choro",
+  breaks = "quantile",
+  nbreaks = 6,
+  pal = "Dark Mint",
+  lwd = 1,
+  leg_title = "Densité de population\n(habitants par km2)", 
+  leg_val_rnd = 0
+)
+mf_title("Distribution de la population dans le Lot (2018)")
+```
+
+### Les palettes de couleurs
+
+L'argument `pal` de `mf_map()` est dédié au choix d'une palette de couleur. Les palettes fournies par la fonction `hcl.colors()` peuvent être utilisées directement.
+
+```{r pal1}
+mf_map(x = com, var = "DENS", type = "choro",
+       breaks = "quantile", nbreaks = 4, pal = "Mako")
+```
+
+
+![](img/swatch-plot-1.svg)
+
+La fonction `mf_get_pal()` permet de construire une palette de couleur.
+Cette fonction est surtout utile pour créer des palettes divergentes asymétriques équilibrées. 
+
+```{r pal2,  fig.height=3, nm=TRUE}
+mypal <- mf_get_pal(n = c(6,3), palette = c("Burg", "Teal"))
+image(1:9, 1, as.matrix(1:9), col=mypal, xlab = "", ylab = "", xaxt = "n",
+      yaxt = "n",bty = "n")
+```
+
+
+
+### Discrétisations {#discretisation}
+
+La fonction `mf_get_breaks()` met à disposition les méthodes de discrétisations de variables classique : quantiles, moyenne/écart-type, amplitudes égales, moyennes emboîtées, Fisher-Jenks, géométrique...
+
+```{r discr2, fig.height=6, fig.width=8}
+x <- com$DENS
+htitle <- "Population density distribution"
+hlab <- "inh. per km2"
+par(mar = c(5.1,2.1,2.1,2.1), mfrow = c(3,1))
+hist(x = x, n = 25, main = htitle, xlab = hlab, freq = FALSE)
+boxplot(x, horizontal = TRUE)
+stripchart(x = x, method = "jitter", pch = 21, bg = "red", 
+           col = "white", cex = .9)
+```
+
+Cette distribution est très dissymétrique à gauche. L'utilisation de la méthode "geom" est assez appropriée dans ce cas.
+
+```{r discr3}
+#| fig-height: 6
+bks <- mf_get_breaks(x = x, nbreaks = 6, breaks = "geom") 
+cols <- mf_get_pal(n = 6, palette = "SunsetDark", rev = TRUE)
+par(mfrow = c(1,1))
+hist(x = x, breaks = bks, col = cols, xlab = hlab, freq = F,
+     axes = FALSE, ylab = "", main = htitle, border = "grey80",
+     lwd = 3, ylim = c(-0.01, 0.03), xlim = c(0,600))
+stripchart(x = x, pch = 21, bg = "grey20", col = "white", 
+           at = -0.005, jitter = 0.0025, add = TRUE,
+           method = "jitter", cex = .7, xlab = "")
+axis(side = 1, at = seq(0,600,100))
+points(x = bks, y = rep(0, length(bks)), pch = "|")
+```
+
+```{r discr_map}
+mf_map(x = com, var = "DENS", type = "choro",
+  breaks = bks, pal = cols,
+  lwd = 1,
+  leg_title = "Population density\n(inh. per km2)", 
+  leg_val_rnd = 0
+)
+mf_title("Population distribution in the Lot department")
+```
+
+
+
+## Carte de typologie
+Les cartes de typologies sont utilisées pour représenter les variables qualitatives.  
+La fonction `mf_map(..., type = "typo")` propose cette représentation.
+
+```{r typo_simple}
+mf_map(
+  x = com,
+  var="STATUT",
+  type = "typo",
+  pal = c("aquamarine4", "yellow3","wheat"),
+  lwd = .7,
+  leg_title = ""
+)
+mf_title("Statut Administratif")
+```
+
+
+L'argument `val_order` sert à ordonner les modalités dans la légende.
+
+```{r typo_order}
+mf_map(
+  x = com,
+  var="STATUT",
+  type = "typo",
+  pal = c("aquamarine4", "yellow3","wheat"),
+  val_order = c("Préfecture", "Sous-préfecture", "Commune simple"),
+  lwd = .7,
+  leg_title = ""
+)
+mf_title("Statut Administratif")
+```
+
+
+
+## Carte de stocks et de ratios
+La fonction `mf_map(..., var = c("var1", "var2"), type = "prop_choro")` représente des symboles proportionnels dont les surfaces sont proportionnelles aux valeurs d'une variable et dont la couleur repose sur la discrétisation d'une seconde variable. La fonction utilise les arguments des fonctions `mf_map(..., type = "prop")` et `mf_map(..., type = "choro")`.
+
+```{r choroprop}
+mf_map(x = com)
+mf_map(
+  x = com,
+  var = c("POPULATION", "DENS"),
+  type = "prop_choro",
+  border = "grey50",
+  lwd = 1,
+  leg_pos = c("topright", "topleft"),
+  leg_title = c("Population", "Densité\nde population\n(en hab./km2)"),
+  breaks = "q6",
+  pal = "Magenta",
+  leg_val_rnd = c(0,1))
+mf_title("Population")
+```
+
+## Carte de stocks et de catégories
+La fonction `mf_map(..., var = c("var1", "var2"), type = "prop_typo")` représente des symboles proportionnels dont les surfaces sont proportionnelles aux valeurs d'une variable et dont la couleur représente les modalités d'une variable qualitative. La fonction utilise les arguments des fonctions `mf_map(..., type = "prop")` et `mf_map(..., type = "typo")`.
+
+```{r typoprop}
+mf_map(x = com)
+mf_map(
+  x = com,
+  var = c("POPULATION", "STATUT"),
+  type = "prop_typo",
+  pal = c("aquamarine4", "yellow3","wheat"),
+  val_order = c("Préfecture", "Sous-préfecture", "Commune simple"),
+  leg_pos = c("bottomleft","topleft"),
+  leg_title = c("Population\n(2015)",
+                "Statut administratif"),
+)
+mf_title("Population")
+```
+
+
+
+## Exercice - Cartographie simple
+
+1. Cette exercice utilise les données du projet RStudio **geodata**.  
+    [Télécharger le projet](geodata.zip){.btn .btn-primary .btn-sm role="button"} 
+
+
+2. Importer la couche des communes du département du Lot à partir du fichier geopackage **lot.gpkg**.
+
+
+3. Importer le fichier **com.csv**.   
+  Ce jeu de données porte sur les communes du Lot et contient plusieurs variables supplémentaires: 
+    - le nombre d'actifs (**ACT**). 
+    - le nombre d'actifs dans l'industrie (**IND**)
+    - la part des actifs dans la population totale (**SACT**)
+    - la part des actifs dans l'industrie dans le total des actifs (**SACT_IND**) 
+
+
+4. Joindre le jeu de données et la couche des communes. 
+
+
+5. Créer une carte de la population active.  
+  Quel mode de représentation utiliser? Quels choix cela implique-t-il?
+
+
+6. Créer une carte de la part de la population active dans la population totale.  
+  Quel mode de représentation utiliser? Quels choix cela implique-t-il?
+
+
+:::{.callout-note}
+Vous pouvez utiliser le fichier **exo_cartographie_simple.R** pour vous guider dans cette exercice.   
+Vous trouverez la correction de cette exercice dans le fichier **exo_cartographie_simple_correction.R**
+:::
+
