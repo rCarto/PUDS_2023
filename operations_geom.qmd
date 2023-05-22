@@ -1,0 +1,192 @@
+---
+knitr:
+  opts_chunk: 
+    fig.height: 6 
+    fig.width: 6
+---
+
+# Opérations sur les géométries
+
+```{r initop}
+#| include: false
+library(mapsf)
+library(sf)
+com <- st_read("data/lot.gpkg", layer = "communes", quiet = TRUE)
+
+```
+
+
+## Extraire des centroides
+
+```{r centroid}
+com_c <- st_centroid(com)
+mf_map(com)
+mf_map(com_c, add = TRUE, cex = 1.2, col = "red", pch = 20)
+```
+
+
+## Agréger des polygones
+
+```{r aggreg}
+dep_46 <- st_union(com)
+mf_map(com, col = "lightblue")
+mf_map(dep_46, col = NA, border = "red", lwd = 2, add = TRUE)
+```
+
+## Agréger des polygones en fonction d'une variable
+
+Il est possible d'utiliser la fonction `aggregate()`.
+
+```{r aggreg2}
+com_u <- aggregate(x = com[,c("POPULATION")],
+                   by = list(STATUT = com$STATUT),
+                   FUN = "sum")
+mf_map(com_u, var = "STATUT", type = "typo")
+```
+
+Il est aussi possible d'utiliser le package `dplyr`.
+```{r aggrgeg3}
+library(dplyr)
+com_u <- com |> 
+  group_by(STATUT) |>
+  summarise(pop = sum(POPULATION))
+```
+
+
+
+## Construire une zone tampon
+
+```{r buffers}
+gramat <- com[com$NOM_COM == "Gramat", ]
+gramat_b <- st_buffer(x = gramat, dist = 5000)
+mf_map(gramat_b, col = "lightblue", lwd=2, border = "red")
+mf_map(gramat, add = TRUE, lwd = 2)
+```
+
+## Réaliser une intersection 
+
+En utilisant la fonction `st_intersection()` on va découper une couche par une autre. 
+
+```{r intersect2}
+# création d'une zone tampon autour du centroid de la commune de Gramat
+# en utilisant le pipe
+zone <- st_geometry(gramat) |>
+  st_centroid() |>
+  st_buffer(10000)
+mf_map(com)
+mf_map(zone, border = "red", col = NA, lwd = 2, add = TRUE)
+com_z <- st_intersection(x = com, y = zone)
+mf_map(com)
+mf_map(com_z, col = "red", border = "green", add = TRUE)
+mf_map(com_z)
+```
+
+
+
+
+## Créer une grille régulière
+
+La fonction `st_make_grid()` permet de créer une grille régulière. 
+La fonction produit un objet `sfc`, il faut ensuite utiliser la fonction `st_sf()` pour transformer
+cet objet `sfc` en objet `sf`. Lors de cette transformation nous rajoutons ici une colonne 
+d'identifiants uniques.   
+
+```{r grid}
+grid <- st_make_grid(x = com, cellsize = 2500)
+grid <- st_sf(ID = 1:length(grid), geom = grid)
+mf_map(grid, col = "grey", border = "white")
+mf_map(com, col = NA, border = "grey50", add = TRUE)
+```
+
+
+## Compter des points dans un polygone
+
+Nous allons compter le nombre de restaurants par carrés de la grille.
+
+
+```{r intersect3.1}
+restaurant <- st_read("data/lot.gpkg", layer = "restaurants", quiet = TRUE)
+mf_map(grid, col = "grey", border = "white")
+mf_map(restaurant, pch = 20, col = "red", cex = .5, add = TRUE)
+inter <- st_intersects(grid, restaurant, sparse = TRUE)
+length(inter)
+```
+
+Ici nous utilisons l'argument `sparse = TRUE`. L'objet **inter** est une liste de la longueur de l'objet **grid** et chaque élément de la liste contient l'index des éléments de l'objet **restaurant** qu'il intersecte. 
+
+Par exemple le carreau 261 intersecte les restaurants 244 et 245 : 
+
+```{r intersect3.3}
+inter[261]
+mf_map(grid[261, ])
+mf_map(restaurant[c(244, 245), ], add = TRUE)
+```
+
+Pour compter le nombre de restaurants il suffit de reporter la longueur de chacun des éléments de cette liste (avec la fonction `lengths()`). 
+
+```{r intersect3.4}
+grid$nb_restaurant <- lengths(inter)
+mf_map(grid)
+mf_map(grid, var = "nb_restaurant", type = "prop", inches = .2, leg_frame = TRUE)
+```
+
+## Aggréger les valeurs de points dans des polygones
+
+Ici nous voulons résumer l'information contenue dans une couche de points dans des polygones. Nous voulons connaître l'altitude minimale et maximale de chaque communes.  
+Nous pouvons commencer par importer une couche de points d'altitude (la couche **elevations** du fichier **lot.gpkg**) 
+
+```{r}
+elev <- st_read("data/lot.gpkg", "elevations", quiet = TRUE)
+
+mf_map(elev, "elevation", "choro", 
+       breaks = c(80, seq(100, 700, by = 100), 742),
+       pal = hcl.colors(8, "Terrain2"), 
+       pch = 20, leg_pos = "topleft", cex = .5)
+```
+
+
+L'objectif est d'agréger les valeurs de ces points (les altitudes contenues dans le champ **elevation**) dans les communes du Lot. 
+
+En utilisant la fonction `st_join()` nous pouvons récupérer les attributs des communes dans lesquelles se trouvent les points.  
+
+
+
+```{r intersection}
+inter <- st_join(x = elev, y = com[, "INSEE_COM"])
+inter
+```
+
+
+Nous pouvons ensuite utiliser la fonction `aggregate()` pour agréger les altitudes par communes, d'abord l'altitude minimal, puis l'altitude maximale.
+
+
+```{r agval2}
+alti_min <- aggregate(x = list(alt_min = inter$elevation),
+                      by = list(INSEE_COM = inter$INSEE_COM),
+                      FUN = "min")
+alti_max <- aggregate(x = list(alt_max = inter$elevation),
+                      by = list(INSEE_COM = inter$INSEE_COM),
+                      FUN = "max")
+head(alti_max)
+
+```
+
+On peut ensuite combiner ces résultat à la couche des communes (avec la fonction `merge()`).
+
+```{r agval3}
+com <- merge(com, alti_min, by = "INSEE_COM", all.x = TRUE)
+com <- merge(com, alti_max, by = "INSEE_COM", all.x = TRUE)
+head(com)
+```
+
+```{r popcompare}
+#| layout-ncol: 2
+#| fig-height: 5
+bks <- c(80, seq(100, 700, by = 100), 742)
+cols <- hcl.colors(8, "Terrain2")
+mf_map(com, "alt_min", "choro", breaks = bks, pal = cols)
+mf_map(com, "alt_max", "choro", breaks = bks, pal = cols)
+
+```
+
+

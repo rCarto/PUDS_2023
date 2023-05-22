@@ -79,7 +79,7 @@ div.csl-indent {
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
-<link href="./sel.html" rel="next">
+<link href="./selections.html" rel="next">
 <link href="./coords.html" rel="prev">
 <link href="./img/globe-africa-solid.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/clipboard/clipboard.min.js"></script>
@@ -109,8 +109,10 @@ div.csl-indent {
 
 <meta property="og:title" content="Cartographie avec R - 11&nbsp; Géocoder des adresses">
 <meta property="og:description" content="Créer des cartes thématiques avec R.">
-<meta property="og:image" content="img/logo_tidygeocoder.png">
+<meta property="og:image" content="https://rcarto.github.io/PUDS_2023/img/logo_tidygeocoder.png">
 <meta property="og:site-name" content="Cartographie avec R">
+<meta property="og:image:height" content="600">
+<meta property="og:image:width" content="518">
 </head>
 
 <body class="nav-sidebar floating">
@@ -122,7 +124,7 @@ div.csl-indent {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./introduction.html"><strong>II. Géomatique avec R</strong></a></li><li class="breadcrumb-item"><a href="./geocodage.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Géocoder des adresses</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./intro_sf.html"><strong>II. Géomatique avec R</strong></a></li><li class="breadcrumb-item"><a href="./geocodage.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Géocoder des adresses</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -135,6 +137,9 @@ div.csl-indent {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Cartographie avec R</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/rcarto/PUDS_2023/" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
     </div>
       </div>
     <div class="sidebar-menu-container"> 
@@ -156,7 +161,7 @@ div.csl-indent {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./manip_donnees_vectorielles.html" class="sidebar-item-text sidebar-link">
+  <a href="./donnees_vectorielles.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Manipuler les données vectorielles</span></span></a>
   </div>
 </li>
@@ -168,13 +173,13 @@ div.csl-indent {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./semio.html" class="sidebar-item-text sidebar-link">
+  <a href="./semiologie.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">La sémiologie graphique</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./type_de_carte.html" class="sidebar-item-text sidebar-link">
+  <a href="./types_de_carte.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Les types de cartes</span></span></a>
   </div>
 </li>
@@ -197,7 +202,7 @@ div.csl-indent {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./introduction.html" class="sidebar-item-text sidebar-link">
+  <a href="./intro_sf.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Le package <code>sf</code></span></span></a>
   </div>
 </li>
@@ -215,7 +220,7 @@ div.csl-indent {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./afichage.html" class="sidebar-item-text sidebar-link">
+  <a href="./affichage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Exploration et affichage</span></span></a>
   </div>
 </li>
@@ -233,13 +238,13 @@ div.csl-indent {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sel.html" class="sidebar-item-text sidebar-link">
+  <a href="./selections.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Les sélections</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./operation.html" class="sidebar-item-text sidebar-link">
+  <a href="./operations_geom.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Opérations sur les géométries</span></span></a>
   </div>
 </li>
@@ -654,7 +659,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./sel.html" class="pagination-link">
+      <a href="./selections.html" class="pagination-link">
         <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Les sélections</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>

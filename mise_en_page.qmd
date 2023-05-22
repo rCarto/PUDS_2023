@@ -281,7 +281,7 @@ Par exemple `par(mfrow = c(1, 2))` (1 ligne et 2 colonnes) permet d'afficher deu
 
 ```{r mfrow0, fig.width=7, fig.height = 3.5,  eval = TRUE}
 # define the figure layout (1 row, 2 columns)
-par(mfrow = c(1, 2))
+opar <- par(mfrow = c(1, 2))
 # define theme
 mf_theme("default", mar = c(0,0,1.2,0), tab = FALSE, pos = "center")
 # first map
@@ -297,6 +297,7 @@ mf_map(com, "TER_H", "prop",
        val_max = 4000, 
        leg_pos = NA)
 mf_title("Hommes")
+par(opar)
 ```
 
 
